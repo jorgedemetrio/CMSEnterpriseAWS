@@ -30,6 +30,11 @@ public class UserController {
         return toResponse(userService.create(request));
     }
 
+    @PutMapping("/{id}")
+    public UserResponse update(@PathVariable UUID id, @Valid @RequestBody CreateUserRequest request) {
+        return toResponse(userService.update(id, request));
+    }
+
     @DeleteMapping("/{id}")
     public void softDelete(@PathVariable UUID id) {
         userService.softDelete(id);

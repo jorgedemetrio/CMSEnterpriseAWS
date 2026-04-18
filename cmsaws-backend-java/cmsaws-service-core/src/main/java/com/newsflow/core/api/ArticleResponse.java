@@ -7,6 +7,7 @@ public record ArticleResponse(
         String title,
         String content,
         UUID categoryId,
-        String categoryName
+        String categoryName,
+        boolean isHighlight
 ) {
 }

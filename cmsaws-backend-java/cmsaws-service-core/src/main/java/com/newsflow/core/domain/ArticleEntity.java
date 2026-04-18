@@ -45,4 +45,8 @@ public class ArticleEntity {
     public void setContent(String content) { this.content = content; }
     public CategoryEntity getCategory() { return category; }
     public void setCategory(CategoryEntity category) { this.category = category; }
+    public boolean isHighlight() { return isHighlight; }
+    public void setHighlight(boolean highlight) { isHighlight = highlight; }
+    public Integer getStatusDado() { return statusDado; }
+    public void setStatusDado(Integer statusDado) { this.statusDado = statusDado; }
 }

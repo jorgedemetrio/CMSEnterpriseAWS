@@ -29,6 +29,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI());
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException exception, HttpServletRequest request) {
+        return build(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
+    }
+
     private ResponseEntity<ApiError> build(HttpStatus status, String message, String path) {
         return build(status, message, path, List.of());
     }

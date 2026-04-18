@@ -43,10 +43,42 @@ public class UserService {
     }
 
     @Transactional
+    public UserEntity update(UUID id, CreateUserRequest request) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        RoleEntity role = roleRepository.findById(request.roleId())
+                .orElseThrow(() -> new InvalidReferenceException("Role not found"));
+
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setRole(role);
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
     public void softDelete(UUID id) {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setStatusDado(0);
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoleEntity> listRoles() {
+        return roleRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public UserEntity authenticateByEmail(String email) {
+        return userRepository.findByEmailIgnoreCaseAndStatusDado(email, 1)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public RoleEntity findRoleByName(String roleName) {
+        return roleRepository.findByNameIgnoreCase(roleName)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
     }
 }

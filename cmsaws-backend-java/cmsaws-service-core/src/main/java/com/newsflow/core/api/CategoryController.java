@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/core/categories")
@@ -27,6 +28,16 @@ public class CategoryController {
     @PostMapping
     public CategoryResponse create(@Valid @RequestBody CreateCategoryRequest request) {
         return toResponse(coreCatalogService.createCategory(request));
+    }
+
+    @PutMapping("/{id}")
+    public CategoryResponse update(@PathVariable UUID id, @Valid @RequestBody CreateCategoryRequest request) {
+        return toResponse(coreCatalogService.updateCategory(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public void softDelete(@PathVariable UUID id) {
+        coreCatalogService.softDeleteCategory(id);
     }
 
     private CategoryResponse toResponse(CategoryEntity category) {

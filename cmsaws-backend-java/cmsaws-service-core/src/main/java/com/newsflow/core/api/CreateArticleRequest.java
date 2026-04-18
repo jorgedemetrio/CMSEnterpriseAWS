@@ -9,6 +9,7 @@ import java.util.UUID;
 public record CreateArticleRequest(
         @NotBlank @Size(max = 250) String title,
         @NotBlank String content,
-        @NotNull UUID categoryId
+        @NotNull UUID categoryId,
+        boolean isHighlight
 ) {
 }

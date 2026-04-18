@@ -31,4 +31,6 @@ public class CategoryEntity {
     public UUID getId() { return id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public Integer getStatusDado() { return statusDado; }
+    public void setStatusDado(Integer statusDado) { this.statusDado = statusDado; }
 }
