@@ -51,25 +51,41 @@ graph TD
 A raiz do projeto é organizada para suportar múltiplos subprojetos (Monorepo):
 
 ```
-/newsflow-ecosystem
-├── /apps
-│   ├── newsflow-user-portal-react   # App em React (Portal Público)
-│   └── newsflow-admin-panel-angular # App em Angular (Dashboard Admin)
-├── /services
-│   ├── newsflow-api-core            # Backend Java 21 (Spring Boot)
-│   ├── newsflow-worker-consumer     # Consumer Java 21 (Kafka)
-│   └── newsflow-lambda-auth         # Node.js/Java para AWS Lambda Login
-├── /infra
-│   ├── /docker                      # Dockerfiles por serviço
-│   │   ├── postgres-init.sql        # Scripts de inicialização do banco
-│   │   └── elasticsearch-config/    # Configurações do Logstash/Kibana
-│   ├── /k8s                         # Manifestos Kubernetes
-│   │   ├── deployments/             # Deployments dos microserviços
-│   │   ├── services/                # Services e Ingress
-│   │   └── secrets/                 # ConfigMaps e Secrets
-│   └── /scripts                     # Scripts de automação (sh/python)
-├── docker-compose.yml               # Orquestração local para desenvolvimento
-└── README.md                        # Este arquivo
+cms-enterprise-aws/
+├── .github/                       # CI/CD Pipelines (Build/Deploy para Fargate/Lambda)
+├── cmsaws-frontend-user/          # [React] Portal Público (Cards, Destaques, Mobile-First)
+│   ├── public/                    # Ícones, manifest e assets estáticos
+│   └── src/
+│       ├── components/            # Layout: Navbar dinâmica, Carrossel Destaques, Cards
+│       ├── hooks/                 # Custom Hooks: useAuth, useArticles, useContact
+│       ├── pages/                 # Home (Cards), ArticleView, Login, Register, ContactForm
+│       └── services/              # API Client (Axios) para API Gateway e Lambdas
+├── cmsaws-frontend-admin/         # [React] Painel Administrativo (Gestão de Conteúdo/Users)
+│   └── src/
+│       ├── pages/                 # AdminMatérias, AdminCategorias, DashboardContatos
+│       └── components/            # Tabelas de dados e editores Rich Text
+├── cmsaws-lambdas-java/           # [Java 21] Funções Serverless (Alta Performance)
+│   ├── cmsaws-lambda-auth/        # Login instantâneo consumindo Redis/Elasticache
+│   └── cmsaws-lambda-producer/    # Envio de eventos (likes/votos) para o Kafka
+├── cmsaws-backend-java/           # [Java 21 / Spring Boot] (Rodando no Fargate)
+│   ├── cmsaws-service-core/       # Micro: Matérias e Categorias (Menu dinâmico)
+│   │   ├── src/main/java/...      # Lógica de negócio e Virtual Threads
+│   │   └── src/main/resources/
+│   │       └── db/migration/      # Flyway: Versionamento de Matérias/Categorias
+│   ├── cmsaws-service-user/       # Micro: Cadastro de Usuários e Permissões (RBAC)
+│   │   └── src/main/resources/
+│   │       └── db/migration/      # Flyway: Versionamento de Users/Roles
+│   ├── cmsaws-service-contact/    # Micro: Gestão de Contatos (Cadastro/E-mail SES)
+│   │   └── src/main/resources/
+│   │       └── db/migration/      # Flyway: Versionamento de Departamentos/Mensagens
+│   └── cmsaws-worker-forum/       # Micro: Consumidor Kafka (Processa comentários/stars)
+│       └── src/main/resources/
+│           └── db/migration/      # Flyway: Versionamento de Comentários/Avaliações
+├── cmsaws-infra-aws/              # Infraestrutura como Código
+│   ├── terraform/                 # Scripts RDS, MSK (Kafka), Redis, ECS Fargate
+│   ├── docker/                    # Dockerfiles de cada serviço e docker-compose local
+│   └── k8s/                       # Manifestos de Kubernetes (se necessário escalar via EKS)
+└── README.md                      # Guia Geral do Projeto
 ```
 
 # 🚀 Detalhamento dos Módulos
@@ -95,7 +111,16 @@ A raiz do projeto é organizada para suportar múltiplos subprojetos (Monorepo):
   - PostgreSQL: Armazenamento relacional de todas as entidades.
   - AWS S3: Armazenamento de arquivos estáticos (imagens das matérias).
   - Kafka: Produtor de eventos para cadastro de usuário, avaliações e comentários.
+  - Flyway para versionamento de SQL.
+  - Actuator para acompanhamento do componente.
+  - Validator para validar campos nos contratos.
 - Logs: Appender Logstash para ELK e CloudWatch Logs.
+- Microserviços:
+  - cmsaws-manager-users: Gerenciador de usuários
+  - cmsaws-manager-content: Gerenciador/CRUD das matérias
+  - cmsaws-manager-forum:  Gerenciador/CRUD dos posts e topicos dos foruns
+  - cmsaws-manager-contact: Gerenciador/CRUD da lista de contate-nos e dos contatos
+  - cmsaws-manager-conent-assessment: Relatórios de acessos e avaliações das matérias
 
 ## 4. Autenticação (AWS Lambda + Redis)
 - Fluxo: O Lambda recebe as credenciais, valida no PostgreSQL ou IAM, e registra o token no Redis para sessões rápidas e distribuídas.
@@ -120,6 +145,8 @@ Aplicar Deployments e Services
 kubectl apply -f infra/k8s/deployments/
 kubectl apply -f infra/k8s/services/
 ```
+# Banco de Dados
+O Flyway executará automaticamente as migrations ao subir os serviços Java, garantindo que o esquema do PostgreSQL esteja sempre atualizado.
 
 # 🔒 Segurança e Melhores Práticas
 1. IAM Role: O Fargate utilizará uma Role do IAM para acessar o S3 e o CloudWatch, eliminando chaves de acesso no código.
