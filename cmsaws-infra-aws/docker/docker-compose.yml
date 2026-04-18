@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   cmsaws-service-core:
     build:

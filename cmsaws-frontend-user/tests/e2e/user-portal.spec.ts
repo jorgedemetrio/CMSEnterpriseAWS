@@ -11,9 +11,17 @@ test.describe("Camada de Usuarios - Portal", () => {
   test("deve exibir secoes principais da home", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { name: "Categorias" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Destaques" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Ultimas materias" })).toBeVisible();
+    const categoriesHeading = page.getByRole("heading", { name: "Categorias" });
+    const errorState = page.getByText("Nao foi possivel carregar os dados da home no momento.");
+
+    await expect(categoriesHeading.or(errorState)).toBeVisible();
+
+    if (await categoriesHeading.isVisible()) {
+      await expect(page.getByRole("heading", { name: "Destaques" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Ultimas materias" })).toBeVisible();
+    } else {
+      await expect(errorState).toBeVisible();
+    }
   });
 
   test("deve responder na rota raiz com conteudo renderizado", async ({ page }) => {

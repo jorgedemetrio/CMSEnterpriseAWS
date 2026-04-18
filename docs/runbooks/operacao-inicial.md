@@ -1,82 +1,90 @@
-# Runbook de Operacao Inicial
+# Runbook Operacional Inicial
 
 ## Objetivo
 
-Padronizar a subida local do ambiente e os passos de diagnostico inicial.
+Fornecer passos operacionais para build, deploy, rollback e troubleshooting inicial do monorepo CMS Enterprise AWS.
 
-## Pre-requisitos
+## 1. Build e Testes
 
-- Docker Desktop ativo
-- Java 21
-- Maven 3.9+
-- Node.js 20+
-- npm
-- kubectl (opcional para fluxo k8s local)
+### Backend Java (todos os modulos)
 
-## Passo a passo local
-
-### 1. Dependencias de infraestrutura
-
-No diretorio cmsaws-infra-aws/docker:
-
-```shell
-docker compose -f docker-compose.local-deps.yml up -d
-```
-
-Verificacao:
-
-```shell
-docker compose -f docker-compose.local-deps.yml ps
-```
-
-### 2. Backend
-
-No diretorio cmsaws-backend-java:
-
-```shell
+```powershell
+cd cmsaws-backend-java
 mvn -B clean test
 ```
 
-### 3. Frontend usuario
+### Lambdas Java
 
-No diretorio cmsaws-frontend-user:
-
-```shell
-npm.cmd ci
-npm.cmd run dev
+```powershell
+cd cmsaws-lambdas-java
+mvn -B clean verify
 ```
 
-### 4. E2E usuario
+### Frontend user
 
-No diretorio cmsaws-frontend-user:
-
-```shell
-npm.cmd run test:e2e
+```powershell
+cd cmsaws-frontend-user
+npm ci
+npm run build
 ```
 
-## Diagnostico rapido
+### Frontend admin
 
-### Docker daemon indisponivel
+```powershell
+cd cmsaws-frontend-admin
+npm ci
+npm run build
+```
 
-Sintoma: falha em docker compose com erro de pipe/engine.
+## 2. Deploy (alto nivel)
 
-Acao:
-- iniciar Docker Desktop
-- repetir docker compose
+1. Publicar imagens de containers no registry.
+2. Atualizar task definitions ECS/Fargate.
+3. Aplicar rollout controlado por servico.
+4. Validar health endpoints e logs no CloudWatch.
 
-### Porta ocupada
+## 3. Rollback
 
-Sintoma: bind de porta falha (5432, 6379, 9092, 9200, 5173)
+### Cenarios de rollback
 
-Acao:
-- encerrar processo local na porta
-- ou ajustar mapeamento no compose
+- Falha em healthcheck apos deploy
+- Aumento anormal de erro 5xx
+- Regressao funcional critica
 
-### API indisponivel na Home
+### Procedimento
 
-Sintoma: frontend usuario mostra mensagem de erro de carregamento.
+1. Reverter task definition para revisao anterior no ECS.
+2. Reduzir percentual de trafego da revisao nova para zero.
+3. Confirmar estabilidade de latencia/erro.
+4. Registrar incidente e causa raiz.
 
-Acao:
-- validar se backend-core esta ativo
-- validar endpoint /api/core/articles
-- validar VITE_API_BASE_URL no frontend
+## 4. Troubleshooting
+
+### Sintoma: API com 400 de validacao
+
+- Verificar payload enviado
+- Checar campo `details` no retorno para identificar todos os campos invalidos
+
+### Sintoma: API com 404 em delete de usuario
+
+- Confirmar ID informado
+- Verificar se registro existe e se nao esta com soft delete
+
+### Sintoma: eventos nao processados no forum
+
+- Verificar lag do consumidor no MSK
+- Validar logs do `cmsaws-worker-forum`
+- Confirmar conectividade com PostgreSQL
+
+### Sintoma: lentidao em leitura
+
+- Confirmar cache Redis
+- Inspecionar latencia no CloudWatch/APM
+- Verificar queries de leitura no PostgreSQL
+
+## 5. Checklist rapido pos-deploy
+
+- Health endpoints dos servicos retornando 200
+- Taxa de erro 5xx dentro do baseline
+- Consumidor Kafka sem lag crescente
+- Frontends carregando pagina inicial e fluxos basicos

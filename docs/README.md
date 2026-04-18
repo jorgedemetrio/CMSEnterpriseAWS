@@ -26,7 +26,6 @@ Esta pasta concentra a documentacao tecnica do monorepo em Markdown com diagrama
 ## Operacao
 
 - [Runbook operacional inicial](./runbooks/operacao-inicial.md)
-- [Guia unico de execucao local](./runbooks/operacao-inicial.md)
 
 ## Escopo inicial
 
