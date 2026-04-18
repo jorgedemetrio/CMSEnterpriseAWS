@@ -1,0 +1,28 @@
+# Node
+node_modules/
+dist/
+coverage/
+**/.angular/
+*.tsbuildinfo
+
+# Java
+**/target/
+**/.mvn/
+**/.project
+**/.classpath
+**/settings/
+
+
+
+# Terraform
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+
+# IDE and OS
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db

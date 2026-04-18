@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-forum
+  namespace: cmsaws
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker-forum
+  template:
+    metadata:
+      labels:
+        app: worker-forum
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: worker-forum
+          image: newsflow/cmsaws-worker-forum:0.1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: DB_URL
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+              ephemeral-storage: "256Mi"
+            limits:
+              memory: "512Mi"

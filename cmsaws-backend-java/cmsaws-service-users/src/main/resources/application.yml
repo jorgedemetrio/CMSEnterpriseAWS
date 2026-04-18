@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: cmsaws-service-users
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/newsflow}
+    username: ${DB_USERNAME:newsflow}
+    password: ${DB_PASSWORD:newsflow}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

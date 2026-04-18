@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-ingress
+  namespace: cmsaws
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: api.dev.local
+      http:
+        paths:
+          - path: /api/core
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-core
+                port:
+                  number: 80
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-users
+                port:
+                  number: 80
+          - path: /api/contacts
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-contacts
+                port:
+                  number: 80
+          - path: /api/forum
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-forum
+                port:
+                  number: 80

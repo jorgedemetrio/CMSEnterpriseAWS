@@ -1,0 +1,21 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE TABLE IF NOT EXISTS roles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL UNIQUE,
+  status_dado INTEGER NOT NULL DEFAULT 1,
+  datahora_criado TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(200) NOT NULL UNIQUE,
+  role_id UUID NOT NULL REFERENCES roles(id),
+  status_dado INTEGER NOT NULL DEFAULT 1,
+  datahora_criado TIMESTAMP
+);
+
+INSERT INTO roles (name)
+VALUES ('ADMIN'), ('EDITOR'), ('READER')
+ON CONFLICT (name) DO NOTHING;
