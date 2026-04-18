@@ -8,22 +8,29 @@
 ## 1. Plataforma e Infra
 
 ### 1.1 Kafka local no ambiente de desenvolvimento
-- Status: Pendente
+- Status: Em andamento
 - Prioridade: P0
 - Escopo:
   - Adicionar `kafka` e `zookeeper` (ou stack KRaft) em `cmsaws-infra-aws/docker/docker-compose.yml`.
   - Configurar portas e variaveis para servicos produtores/consumidores.
   - Ajustar worker para bootstrap server do compose.
+- Progresso:
+  - `kafka` e `zookeeper` adicionados em `docker-compose.yml`.
+  - Stack local de dependencias atualizada em `docker-compose.local-deps.yml` com healthchecks.
+  - `KAFKA_BOOTSTRAP_SERVERS` configurado para forum/worker no compose.
 - Criterio de aceite:
   - `docker compose up -d` sobe Kafka sem erro.
   - Producao e consumo de mensagem de teste funcionando.
 
 ### 1.2 Ingress Kubernetes para front e APIs
-- Status: Pendente
+- Status: Concluido
 - Prioridade: P1
 - Escopo:
   - Criar manifests `Ingress` para `frontend-user`, `frontend-admin` e APIs backend.
   - Definir hostnames por ambiente (`dev.local`, etc.).
+- Progresso:
+  - Ingress criado para front em `cmsaws-infra-aws/k8s/ingress/frontend-ingress.yaml`.
+  - Ingress criado para APIs em `cmsaws-infra-aws/k8s/ingress/backend-ingress.yaml`.
 - Criterio de aceite:
   - Rotas HTTP acessiveis via ingress controller sem port-forward manual.
 
@@ -58,12 +65,16 @@
 ## 3. Front-end Usuario
 
 ### 3.1 Home real (cards + destaques)
-- Status: Pendente
+- Status: Em andamento
 - Prioridade: P0
 - Escopo:
   - Implementar listagem de materias.
   - Implementar carrossel com `is_highlight = true`.
   - Implementar estados de loading/erro/vazio.
+- Progresso:
+  - Home consumindo API real em `cmsaws-frontend-user/src/pages/HomePage.tsx`.
+  - Estados de loading/erro/vazio implementados.
+  - Secoes de categorias, destaques e listagem de materias implementadas.
 - Criterio de aceite:
   - Home renderiza dados reais da API com fallback de erro amigavel.
 
@@ -99,28 +110,36 @@
   - Execucao `npm run test:e2e` verde em CI e local.
 
 ### 5.2 Pipeline de CI para E2E
-- Status: Pendente
+- Status: Concluido
 - Prioridade: P1
 - Escopo:
   - Incluir job Playwright no workflow CI.
   - Publicar relatorio HTML/artifacts.
+- Progresso:
+  - Job `frontend-user-e2e` adicionado em `.github/workflows/ci.yml`.
+  - Upload de artifacts do Playwright (report e test-results) habilitado.
 - Criterio de aceite:
   - PR bloqueado em caso de falha E2E.
 
 ## 6. Documentacao
 
 ### 6.1 Atualizar roadmap raiz
-- Status: Pendente
+- Status: Concluido
 - Prioridade: P2
 - Escopo:
   - Atualizar checkboxes do `README.md` para refletir o estado atual.
+- Progresso:
+  - `README.md` revisado com roadmap tecnico alinhado ao estado atual.
 - Criterio de aceite:
   - Roadmap sem itens desatualizados.
 
 ### 6.2 Guia de execucao local unico
-- Status: Pendente
+- Status: Concluido
 - Prioridade: P2
 - Escopo:
   - Documentar passo a passo unico (infra + backend + front + testes).
+- Progresso:
+  - Guia unico consolidado em `docs/runbooks/operacao-inicial.md`.
+  - Referencias atualizadas em `README.md` e `docs/README.md`.
 - Criterio de aceite:
   - Novo colaborador sobe ambiente completo sem ajuste manual nao documentado.
