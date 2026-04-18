@@ -8,7 +8,7 @@
 ## 1. Plataforma e Infra
 
 ### 1.1 Kafka local no ambiente de desenvolvimento
-- Status: Em andamento
+- Status: Concluido
 - Prioridade: P0
 - Escopo:
   - Adicionar `kafka` e `zookeeper` (ou stack KRaft) em `cmsaws-infra-aws/docker/docker-compose.yml`.
@@ -18,6 +18,8 @@
   - `kafka` e `zookeeper` adicionados em `docker-compose.yml`.
   - Stack local de dependencias atualizada em `docker-compose.local-deps.yml` com healthchecks.
   - `KAFKA_BOOTSTRAP_SERVERS` configurado para forum/worker no compose.
+  - Service Forum publica eventos de criacao de topico/post em `forum.events`.
+  - Worker consome eventos Kafka e persiste em `forum_event_consumptions` via JPA/Flyway.
 - Criterio de aceite:
   - `docker compose up -d` sobe Kafka sem erro.
   - Producao e consumo de mensagem de teste funcionando.
@@ -45,11 +47,15 @@
 ## 2. Back-end
 
 ### 2.1 Integracao real com Kafka no forum/worker
-- Status: Pendente
+- Status: Concluido
 - Prioridade: P0
 - Escopo:
   - Garantir producer no fluxo do forum e consumer no `cmsaws-worker-forum`.
   - Cobrir contratos de evento e tratamento de erro/retry.
+- Progresso:
+  - Producer implementado no forum (`ForumEventPublisher`) para topicos e posts.
+  - Consumer implementado no worker (`ForumEventConsumer`) com idempotencia por `event_id`.
+  - Persistencia no worker adicionada com migration Flyway e repositório JPA.
 - Criterio de aceite:
   - Evento criado no service-forum e consumido pelo worker com persistencia esperada.
 
@@ -65,7 +71,7 @@
 ## 3. Front-end Usuario
 
 ### 3.1 Home real (cards + destaques)
-- Status: Em andamento
+- Status: Concluido
 - Prioridade: P0
 - Escopo:
   - Implementar listagem de materias.
@@ -75,26 +81,35 @@
   - Home consumindo API real em `cmsaws-frontend-user/src/pages/HomePage.tsx`.
   - Estados de loading/erro/vazio implementados.
   - Secoes de categorias, destaques e listagem de materias implementadas.
+  - Destaques agora usam filtro real `isHighlight = true`.
 - Criterio de aceite:
   - Home renderiza dados reais da API com fallback de erro amigavel.
 
 ### 3.2 Fluxos de autenticacao e contato
-- Status: Pendente
+- Status: Concluido
 - Prioridade: P1
 - Escopo:
   - Login/cadastro e armazenamento de sessao.
   - Formulario de contato com departamentos reais.
+- Progresso:
+  - Backend com `POST /api/users/auth/login` e listagem de roles para cadastro.
+  - Frontend user com abas de autenticacao (login/cadastro) e contato integrado.
+  - Cadastro usa role `READER` automaticamente via API de roles.
 - Criterio de aceite:
   - Fluxos funcionam ponta a ponta em ambiente local.
 
 ## 4. Front-end Admin
 
 ### 4.1 Painel administrativo funcional
-- Status: Pendente
+- Status: Concluido
 - Prioridade: P1
 - Escopo:
   - CRUD de materias, categorias e usuarios.
   - Controle de permissao por perfil.
+- Progresso:
+  - Frontend admin Angular substituiu scaffold por painel funcional com CRUD real.
+  - Integracao com APIs de usuarios, categorias e materias.
+  - Permissoes por perfil implementadas para `ADMIN`, `EDITOR` e `READER`.
 - Criterio de aceite:
   - Operacoes CRUD completas com validacao de permissao.
 
