@@ -8,6 +8,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+newsflow:
+  kafka:
+    topic-forum-events: ${KAFKA_TOPIC_FORUM_EVENTS:forum.events}
 
 management:
   endpoints:

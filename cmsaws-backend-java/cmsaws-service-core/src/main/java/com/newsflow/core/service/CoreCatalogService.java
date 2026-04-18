@@ -70,15 +70,15 @@ public class CoreCatalogService {
         article.setHighlight(request.isHighlight());
 
         return articleRepository.save(article);
-        }
+    }
 
-        @Transactional
-        public ArticleEntity updateArticle(UUID id, CreateArticleRequest request) {
+    @Transactional
+    public ArticleEntity updateArticle(UUID id, CreateArticleRequest request) {
         ArticleEntity article = articleRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Article not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found"));
 
         CategoryEntity category = categoryRepository.findById(request.categoryId())
-            .orElseThrow(() -> new InvalidReferenceException("Category not found"));
+                .orElseThrow(() -> new InvalidReferenceException("Category not found"));
 
         article.setTitle(request.title());
         article.setContent(request.content());
@@ -86,14 +86,14 @@ public class CoreCatalogService {
         article.setHighlight(request.isHighlight());
 
         return articleRepository.save(article);
-        }
+    }
 
-        @Transactional
-        public void softDeleteArticle(UUID id) {
+    @Transactional
+    public void softDeleteArticle(UUID id) {
         ArticleEntity article = articleRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Article not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found"));
         article.setStatusDado(0);
 
-        return articleRepository.save(article);
+        articleRepository.save(article);
     }
 }

@@ -69,7 +69,7 @@ class CoreCatalogServiceTest {
     void shouldCreateArticle() {
         UUID categoryId = UUID.randomUUID();
         CategoryEntity category = new CategoryEntity();
-        CreateArticleRequest request = new CreateArticleRequest("Titulo", "Conteudo", categoryId);
+        CreateArticleRequest request = new CreateArticleRequest("Titulo", "Conteudo", categoryId, true);
 
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
         when(articleRepository.save(any(ArticleEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -79,12 +79,13 @@ class CoreCatalogServiceTest {
         assertTrue("Titulo".equals(created.getTitle()));
         assertTrue("Conteudo".equals(created.getContent()));
         assertTrue(created.getCategory() == category);
+        assertTrue(created.isHighlight());
     }
 
     @Test
     void shouldFailCreateArticleForMissingCategory() {
         UUID categoryId = UUID.randomUUID();
-        CreateArticleRequest request = new CreateArticleRequest("Titulo", "Conteudo", categoryId);
+        CreateArticleRequest request = new CreateArticleRequest("Titulo", "Conteudo", categoryId, false);
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
 
         assertThrows(InvalidReferenceException.class, () -> coreCatalogService.createArticle(request));

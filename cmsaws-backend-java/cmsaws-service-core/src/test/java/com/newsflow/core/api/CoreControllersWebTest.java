@@ -91,7 +91,7 @@ class CoreControllersWebTest {
 
         when(coreCatalogService.createArticle(any(CreateArticleRequest.class))).thenReturn(article);
 
-        CreateArticleRequest request = new CreateArticleRequest("Materia", "Texto", UUID.randomUUID());
+        CreateArticleRequest request = new CreateArticleRequest("Materia", "Texto", UUID.randomUUID(), true);
 
         mockMvc.perform(post("/api/core/articles")
                         .contentType(MediaType.APPLICATION_JSON)

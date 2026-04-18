@@ -5,6 +5,7 @@ import com.newsflow.forum.api.CreateForumTopicRequest;
 import com.newsflow.forum.api.InvalidReferenceException;
 import com.newsflow.forum.domain.ForumPostEntity;
 import com.newsflow.forum.domain.ForumTopicEntity;
+import com.newsflow.forum.kafka.ForumEventPublisher;
 import com.newsflow.forum.repository.ForumPostRepository;
 import com.newsflow.forum.repository.ForumTopicRepository;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,9 @@ class ForumServiceTest {
 
     @Mock
     private ForumPostRepository postRepository;
+
+    @Mock
+    private ForumEventPublisher eventPublisher;
 
     @InjectMocks
     private ForumService forumService;
