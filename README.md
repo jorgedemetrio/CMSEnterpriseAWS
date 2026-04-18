@@ -66,19 +66,23 @@ cms-enterprise-aws/
 │       └── components/            # Tabelas de dados e editores Rich Text
 ├── cmsaws-lambdas-java/           # [Java 21] Funções Serverless (Alta Performance)
 │   ├── cmsaws-lambda-auth/        # Login instantâneo consumindo Redis/Elasticache
+│   ├── cmsaws-lambda-auth/        # Carega o contúdo da matériaa
+│   ├── cmsaws-lambda-home/        # Deveolve os dados para montar a página homepage (Matérias em destaque, utlimas matérias para os cards)
 │   └── cmsaws-lambda-producer/    # Envio de eventos (likes/votos) para o Kafka
 ├── cmsaws-backend-java/           # [Java 21 / Spring Boot] (Rodando no Fargate)
-│   ├── cmsaws-service-core/       # Micro: Matérias e Categorias (Menu dinâmico)
+│   ├── cmsaws-service-core/       # Micro: Administração(CRUD) de Matérias e Categorias (Menu dinâmico)
 │   │   ├── src/main/java/...      # Lógica de negócio e Virtual Threads
 │   │   └── src/main/resources/
 │   │       └── db/migration/      # Flyway: Versionamento de Matérias/Categorias
-│   ├── cmsaws-service-user/       # Micro: Cadastro de Usuários e Permissões (RBAC)
+│   ├── cmsaws-service-users/      # Micro: Administração(CRUD) de Usuários e Permissões (RBAC)
 │   │   └── src/main/resources/
 │   │       └── db/migration/      # Flyway: Versionamento de Users/Roles
-│   ├── cmsaws-service-contact/    # Micro: Gestão de Contatos (Cadastro/E-mail SES)
+│   ├── cmsaws-service-contacts/    # Micro: Administração(CRUD) de gestão de Contatos e Lista de Contatos (Cadastro/E-mail SES)
 │   │   └── src/main/resources/
 │   │       └── db/migration/      # Flyway: Versionamento de Departamentos/Mensagens
 │   └── cmsaws-worker-forum/       # Micro: Consumidor Kafka (Processa comentários/stars)
+│       └── src/main/resources/
+│   └── cmsaws-service-forum/       # Micro: Administração(CRUD) de Posts e Topicos de foruns
 │       └── src/main/resources/
 │           └── db/migration/      # Flyway: Versionamento de Comentários/Avaliações
 ├── cmsaws-infra-aws/              # Infraestrutura como Código
@@ -115,12 +119,7 @@ cms-enterprise-aws/
   - Actuator para acompanhamento do componente.
   - Validator para validar campos nos contratos.
 - Logs: Appender Logstash para ELK e CloudWatch Logs.
-- Microserviços:
-  - cmsaws-manager-users: Gerenciador de usuários
-  - cmsaws-manager-content: Gerenciador/CRUD das matérias
-  - cmsaws-manager-forum:  Gerenciador/CRUD dos posts e topicos dos foruns
-  - cmsaws-manager-contact: Gerenciador/CRUD da lista de contate-nos e dos contatos
-  - cmsaws-manager-conent-assessment: Relatórios de acessos e avaliações das matérias
+
 
 ## 4. Autenticação (AWS Lambda + Redis)
 - Fluxo: O Lambda recebe as credenciais, valida no PostgreSQL ou IAM, e registra o token no Redis para sessões rápidas e distribuídas.
@@ -147,6 +146,34 @@ kubectl apply -f infra/k8s/services/
 ```
 # Banco de Dados
 O Flyway executará automaticamente as migrations ao subir os serviços Java, garantindo que o esquema do PostgreSQL esteja sempre atualizado.
+- Os IDs devem ser UUID para garantir a segurança
+- Toda removeção é sof delete, não existe deleção real para isso teremos o campos status_dado onde :
+  - 0 : Removido
+  - 1 : Normal
+- Todas tabelas devem ter os campos de auditoria, não obrigatório:
+  - ip_criado
+  - ip_alterador
+  - datahora_criado
+  - datahora_alterado
+  - id_usuario_criador
+  - id_usuario_alterador
+- Informações que serão publicadas na tela como Categoria, Matéria e Contatos devem ter a informações:
+  - datahora_publicacao
+  - datahora_despublicar
+  - staus_conteudo (Default: 1): 
+    - 0 : Normal
+    - 1 : Publicado
+    - -1 : Despublicado
+
+## Tabelas
+- Usuários
+- Matérias
+- Categorias
+- Tópicos de forum
+- Posts De FOrum
+- Contatos
+- Lista de Contatos (deve ter tabelaa associativa com contatos) 
+
 
 # 🔒 Segurança e Melhores Práticas
 1. IAM Role: O Fargate utilizará uma Role do IAM para acessar o S3 e o CloudWatch, eliminando chaves de acesso no código.
