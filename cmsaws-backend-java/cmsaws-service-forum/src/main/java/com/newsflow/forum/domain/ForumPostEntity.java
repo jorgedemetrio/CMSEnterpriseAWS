@@ -1,12 +1,16 @@
 package com.newsflow.forum.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "forum_posts")
+@Getter
+@Setter
 public class ForumPostEntity {
 
     @Id
@@ -29,11 +33,4 @@ public class ForumPostEntity {
     @Column(name = "datahora_criado")
     private LocalDateTime datahoraCriado = LocalDateTime.now();
 
-    public UUID getId() { return id; }
-    public ForumTopicEntity getTopic() { return topic; }
-    public void setTopic(ForumTopicEntity topic) { this.topic = topic; }
-    public String getAuthorName() { return authorName; }
-    public void setAuthorName(String authorName) { this.authorName = authorName; }
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
 }

@@ -1,11 +1,13 @@
 package com.newsflow.users.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.newsflow.users.api.mapper.UserMapper;
 import com.newsflow.users.domain.RoleEntity;
 import com.newsflow.users.domain.UserEntity;
 import com.newsflow.users.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @Import(GlobalExceptionHandler.class)
 class UserControllerWebTest {
 
@@ -37,10 +40,24 @@ class UserControllerWebTest {
     @MockBean
     private UserService userService;
 
+    @MockBean
+    private UserMapper userMapper;
+
     @Test
     void shouldListUsers() throws Exception {
         UserEntity user = buildUser("Jorge", "jorge@example.com", "ADMIN");
         when(userService.list()).thenReturn(List.of(user));
+        when(userMapper.toResponse(any(UserEntity.class))).thenAnswer(invocation -> {
+            UserEntity mapped = invocation.getArgument(0);
+            return new UserResponse(
+                    mapped.getId(),
+                    mapped.getName(),
+                    mapped.getEmail(),
+                    mapped.getRole() != null ? mapped.getRole().getId() : null,
+                    mapped.getRole() != null ? mapped.getRole().getName() : null,
+                    mapped.getStatusDado()
+            );
+        });
 
         mockMvc.perform(get("/api/users/users"))
                 .andExpect(status().isOk())
@@ -53,6 +70,17 @@ class UserControllerWebTest {
     void shouldCreateUser() throws Exception {
         UserEntity user = buildUser("Maria", "maria@example.com", "EDITOR");
         when(userService.create(any(CreateUserRequest.class))).thenReturn(user);
+        when(userMapper.toResponse(any(UserEntity.class))).thenAnswer(invocation -> {
+            UserEntity mapped = invocation.getArgument(0);
+            return new UserResponse(
+                    mapped.getId(),
+                    mapped.getName(),
+                    mapped.getEmail(),
+                    mapped.getRole() != null ? mapped.getRole().getId() : null,
+                    mapped.getRole() != null ? mapped.getRole().getName() : null,
+                    mapped.getStatusDado()
+            );
+        });
 
         CreateUserRequest request = new CreateUserRequest("Maria", "maria@example.com", UUID.randomUUID());
 

@@ -1,12 +1,16 @@
 package com.newsflow.core.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "categories")
+@Getter
+@Setter
 public class CategoryEntity {
 
     @Id
@@ -28,9 +32,4 @@ public class CategoryEntity {
     @Column(name = "datahora_despublicar")
     private LocalDateTime datahoraDespublicar;
 
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public Integer getStatusDado() { return statusDado; }
-    public void setStatusDado(Integer statusDado) { this.statusDado = statusDado; }
 }

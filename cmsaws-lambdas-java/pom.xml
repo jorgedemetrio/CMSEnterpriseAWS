@@ -21,5 +21,30 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <aws.lambda.java.core.version>1.2.3</aws.lambda.java.core.version>
     <jackson.version>2.17.2</jackson.version>
+    <lombok.version>1.18.34</lombok.version>
+    <mapstruct.version>1.5.5.Final</mapstruct.version>
   </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${mapstruct.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

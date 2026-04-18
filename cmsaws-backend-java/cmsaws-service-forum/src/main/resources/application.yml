@@ -15,8 +15,14 @@ newsflow:
   kafka:
     topic-forum-events: ${KAFKA_TOPIC_FORUM_EVENTS:forum.events}
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus

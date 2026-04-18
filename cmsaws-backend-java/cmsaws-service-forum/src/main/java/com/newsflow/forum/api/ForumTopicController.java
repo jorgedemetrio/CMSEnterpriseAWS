@@ -1,6 +1,6 @@
 package com.newsflow.forum.api;
 
-import com.newsflow.forum.domain.ForumTopicEntity;
+import com.newsflow.forum.api.mapper.ForumTopicMapper;
 import com.newsflow.forum.service.ForumService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -12,27 +12,22 @@ import java.util.List;
 public class ForumTopicController {
 
     private final ForumService forumService;
+    private final ForumTopicMapper forumTopicMapper;
 
-    public ForumTopicController(ForumService forumService) {
+    public ForumTopicController(ForumService forumService, ForumTopicMapper forumTopicMapper) {
         this.forumService = forumService;
+        this.forumTopicMapper = forumTopicMapper;
     }
 
     @GetMapping
     public List<ForumTopicResponse> list() {
         return forumService.listTopics().stream()
-                .map(this::toResponse)
+                .map(forumTopicMapper::toResponse)
                 .toList();
     }
 
     @PostMapping
     public ForumTopicResponse create(@Valid @RequestBody CreateForumTopicRequest request) {
-        return toResponse(forumService.createTopic(request));
-    }
-
-    private ForumTopicResponse toResponse(ForumTopicEntity topic) {
-        return new ForumTopicResponse(
-                topic.getId(),
-                topic.getTitle()
-        );
+        return forumTopicMapper.toResponse(forumService.createTopic(request));
     }
 }

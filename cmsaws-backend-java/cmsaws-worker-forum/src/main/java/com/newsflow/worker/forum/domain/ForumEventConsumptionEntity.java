@@ -6,12 +6,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "forum_event_consumptions")
+@Getter
+@Setter
 public class ForumEventConsumptionEntity {
 
     @Id
@@ -36,15 +40,4 @@ public class ForumEventConsumptionEntity {
     @Column(name = "datahora_criado", nullable = false)
     private LocalDateTime datahoraCriado = LocalDateTime.now();
 
-    public UUID getId() { return id; }
-    public UUID getEventId() { return eventId; }
-    public void setEventId(UUID eventId) { this.eventId = eventId; }
-    public String getEventType() { return eventType; }
-    public void setEventType(String eventType) { this.eventType = eventType; }
-    public UUID getAggregateId() { return aggregateId; }
-    public void setAggregateId(UUID aggregateId) { this.aggregateId = aggregateId; }
-    public String getPayload() { return payload; }
-    public void setPayload(String payload) { this.payload = payload; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
 }

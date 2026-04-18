@@ -1,11 +1,14 @@
 package com.newsflow.forum.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.newsflow.forum.api.mapper.ForumPostMapper;
+import com.newsflow.forum.api.mapper.ForumTopicMapper;
 import com.newsflow.forum.domain.ForumPostEntity;
 import com.newsflow.forum.domain.ForumTopicEntity;
 import com.newsflow.forum.service.ForumService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -23,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({ForumTopicController.class, ForumPostController.class})
+@AutoConfigureMockMvc(addFilters = false)
 @Import(GlobalExceptionHandler.class)
 class ForumControllersWebTest {
 
@@ -35,12 +39,22 @@ class ForumControllersWebTest {
     @MockBean
     private ForumService forumService;
 
+    @MockBean
+    private ForumTopicMapper forumTopicMapper;
+
+    @MockBean
+    private ForumPostMapper forumPostMapper;
+
     @Test
     void shouldListTopics() throws Exception {
         ForumTopicEntity topic = new ForumTopicEntity();
         topic.setTitle("Backend");
 
         when(forumService.listTopics()).thenReturn(List.of(topic));
+        when(forumTopicMapper.toResponse(any(ForumTopicEntity.class))).thenAnswer(invocation -> {
+            ForumTopicEntity mapped = invocation.getArgument(0);
+            return new ForumTopicResponse(mapped.getId(), mapped.getTitle());
+        });
 
         mockMvc.perform(get("/api/forum/topics"))
                 .andExpect(status().isOk())
@@ -53,6 +67,10 @@ class ForumControllersWebTest {
         topic.setTitle("Cloud");
 
         when(forumService.createTopic(any(CreateForumTopicRequest.class))).thenReturn(topic);
+        when(forumTopicMapper.toResponse(any(ForumTopicEntity.class))).thenAnswer(invocation -> {
+            ForumTopicEntity mapped = invocation.getArgument(0);
+            return new ForumTopicResponse(mapped.getId(), mapped.getTitle());
+        });
 
         CreateForumTopicRequest request = new CreateForumTopicRequest("Cloud");
 
@@ -74,6 +92,16 @@ class ForumControllersWebTest {
         post.setContent("Bom ponto");
 
         when(forumService.listPosts()).thenReturn(List.of(post));
+        when(forumPostMapper.toResponse(any(ForumPostEntity.class))).thenAnswer(invocation -> {
+            ForumPostEntity mapped = invocation.getArgument(0);
+            return new ForumPostResponse(
+                mapped.getId(),
+                mapped.getTopic() != null ? mapped.getTopic().getId() : null,
+                mapped.getTopic() != null ? mapped.getTopic().getTitle() : null,
+                mapped.getAuthorName(),
+                mapped.getContent()
+            );
+        });
 
         mockMvc.perform(get("/api/forum/posts"))
                 .andExpect(status().isOk())
@@ -92,6 +120,16 @@ class ForumControllersWebTest {
         post.setContent("Excelente");
 
         when(forumService.createPost(any(CreateForumPostRequest.class))).thenReturn(post);
+        when(forumPostMapper.toResponse(any(ForumPostEntity.class))).thenAnswer(invocation -> {
+            ForumPostEntity mapped = invocation.getArgument(0);
+            return new ForumPostResponse(
+                mapped.getId(),
+                mapped.getTopic() != null ? mapped.getTopic().getId() : null,
+                mapped.getTopic() != null ? mapped.getTopic().getTitle() : null,
+                mapped.getAuthorName(),
+                mapped.getContent()
+            );
+        });
 
         CreateForumPostRequest request = new CreateForumPostRequest(UUID.randomUUID(), "Lia", "Excelente");
 

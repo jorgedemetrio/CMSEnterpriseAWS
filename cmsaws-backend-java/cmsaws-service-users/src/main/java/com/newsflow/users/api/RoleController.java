@@ -1,6 +1,6 @@
 package com.newsflow.users.api;
 
-import com.newsflow.users.domain.RoleEntity;
+import com.newsflow.users.api.mapper.RoleMapper;
 import com.newsflow.users.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,19 +13,17 @@ import java.util.List;
 public class RoleController {
 
     private final UserService userService;
+    private final RoleMapper roleMapper;
 
-    public RoleController(UserService userService) {
+    public RoleController(UserService userService, RoleMapper roleMapper) {
         this.userService = userService;
+        this.roleMapper = roleMapper;
     }
 
     @GetMapping
     public List<RoleResponse> list() {
         return userService.listRoles().stream()
-                .map(this::toResponse)
+                .map(roleMapper::toResponse)
                 .toList();
-    }
-
-    private RoleResponse toResponse(RoleEntity role) {
-        return new RoleResponse(role.getId(), role.getName(), role.getStatusDado());
     }
 }

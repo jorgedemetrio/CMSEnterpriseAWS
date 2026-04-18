@@ -1,6 +1,6 @@
 package com.newsflow.core.api;
 
-import com.newsflow.core.domain.CategoryEntity;
+import com.newsflow.core.api.mapper.CategoryMapper;
 import com.newsflow.core.service.CoreCatalogService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -13,37 +13,32 @@ import java.util.UUID;
 public class CategoryController {
 
     private final CoreCatalogService coreCatalogService;
+    private final CategoryMapper categoryMapper;
 
-    public CategoryController(CoreCatalogService coreCatalogService) {
+    public CategoryController(CoreCatalogService coreCatalogService, CategoryMapper categoryMapper) {
         this.coreCatalogService = coreCatalogService;
+        this.categoryMapper = categoryMapper;
     }
 
     @GetMapping
     public List<CategoryResponse> list() {
         return coreCatalogService.listCategories().stream()
-                .map(this::toResponse)
+                .map(categoryMapper::toResponse)
                 .toList();
     }
 
     @PostMapping
     public CategoryResponse create(@Valid @RequestBody CreateCategoryRequest request) {
-        return toResponse(coreCatalogService.createCategory(request));
+        return categoryMapper.toResponse(coreCatalogService.createCategory(request));
     }
 
     @PutMapping("/{id}")
     public CategoryResponse update(@PathVariable UUID id, @Valid @RequestBody CreateCategoryRequest request) {
-        return toResponse(coreCatalogService.updateCategory(id, request));
+        return categoryMapper.toResponse(coreCatalogService.updateCategory(id, request));
     }
 
     @DeleteMapping("/{id}")
     public void softDelete(@PathVariable UUID id) {
         coreCatalogService.softDeleteCategory(id);
-    }
-
-    private CategoryResponse toResponse(CategoryEntity category) {
-        return new CategoryResponse(
-                category.getId(),
-                category.getName()
-        );
     }
 }

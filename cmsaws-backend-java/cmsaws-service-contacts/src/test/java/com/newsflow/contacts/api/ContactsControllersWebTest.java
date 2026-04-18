@@ -1,11 +1,14 @@
 package com.newsflow.contacts.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.newsflow.contacts.api.mapper.ContactMessageMapper;
+import com.newsflow.contacts.api.mapper.DepartmentMapper;
 import com.newsflow.contacts.domain.ContactMessageEntity;
 import com.newsflow.contacts.domain.DepartmentEntity;
 import com.newsflow.contacts.service.ContactService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -23,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({DepartmentController.class, ContactMessageController.class})
+@AutoConfigureMockMvc(addFilters = false)
 @Import(GlobalExceptionHandler.class)
 class ContactsControllersWebTest {
 
@@ -35,12 +39,22 @@ class ContactsControllersWebTest {
     @MockBean
     private ContactService contactService;
 
+    @MockBean
+    private DepartmentMapper departmentMapper;
+
+    @MockBean
+    private ContactMessageMapper contactMessageMapper;
+
     @Test
     void shouldListDepartments() throws Exception {
         DepartmentEntity department = new DepartmentEntity();
         department.setName("Suporte");
 
         when(contactService.listDepartments()).thenReturn(List.of(department));
+        when(departmentMapper.toResponse(any(DepartmentEntity.class))).thenAnswer(invocation -> {
+            DepartmentEntity mapped = invocation.getArgument(0);
+            return new DepartmentResponse(mapped.getId(), mapped.getName());
+        });
 
         mockMvc.perform(get("/api/contacts/departments"))
                 .andExpect(status().isOk())
@@ -53,6 +67,10 @@ class ContactsControllersWebTest {
         department.setName("Comercial");
 
         when(contactService.createDepartment(any(CreateDepartmentRequest.class))).thenReturn(department);
+        when(departmentMapper.toResponse(any(DepartmentEntity.class))).thenAnswer(invocation -> {
+            DepartmentEntity mapped = invocation.getArgument(0);
+            return new DepartmentResponse(mapped.getId(), mapped.getName());
+        });
 
         CreateDepartmentRequest request = new CreateDepartmentRequest("Comercial");
 
@@ -75,6 +93,17 @@ class ContactsControllersWebTest {
         message.setMessage("Mensagem");
 
         when(contactService.listMessages()).thenReturn(List.of(message));
+        when(contactMessageMapper.toResponse(any(ContactMessageEntity.class))).thenAnswer(invocation -> {
+            ContactMessageEntity mapped = invocation.getArgument(0);
+            return new ContactMessageResponse(
+                mapped.getId(),
+                mapped.getDepartment() != null ? mapped.getDepartment().getId() : null,
+                mapped.getDepartment() != null ? mapped.getDepartment().getName() : null,
+                mapped.getName(),
+                mapped.getEmail(),
+                mapped.getMessage()
+            );
+        });
 
         mockMvc.perform(get("/api/contacts/messages"))
                 .andExpect(status().isOk())
@@ -94,6 +123,17 @@ class ContactsControllersWebTest {
         message.setMessage("Preciso de ajuda");
 
         when(contactService.createMessage(any(CreateContactMessageRequest.class))).thenReturn(message);
+        when(contactMessageMapper.toResponse(any(ContactMessageEntity.class))).thenAnswer(invocation -> {
+            ContactMessageEntity mapped = invocation.getArgument(0);
+            return new ContactMessageResponse(
+                mapped.getId(),
+                mapped.getDepartment() != null ? mapped.getDepartment().getId() : null,
+                mapped.getDepartment() != null ? mapped.getDepartment().getName() : null,
+                mapped.getName(),
+                mapped.getEmail(),
+                mapped.getMessage()
+            );
+        });
 
         CreateContactMessageRequest request = new CreateContactMessageRequest(
                 UUID.randomUUID(),

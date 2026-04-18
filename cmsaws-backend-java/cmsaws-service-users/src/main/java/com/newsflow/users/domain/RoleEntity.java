@@ -6,12 +6,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "roles")
+@Getter
+@Setter
 public class RoleEntity {
 
     @Id
@@ -27,8 +31,4 @@ public class RoleEntity {
     @Column(name = "datahora_criado")
     private LocalDateTime datahoraCriado = LocalDateTime.now();
 
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public Integer getStatusDado() { return statusDado; }
 }

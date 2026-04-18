@@ -1,12 +1,16 @@
 package com.newsflow.contacts.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "departments")
+@Getter
+@Setter
 public class DepartmentEntity {
 
     @Id
@@ -28,7 +32,4 @@ public class DepartmentEntity {
     @Column(name = "datahora_despublicar")
     private LocalDateTime datahoraDespublicar;
 
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
 }

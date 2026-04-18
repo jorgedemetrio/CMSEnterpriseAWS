@@ -1,11 +1,14 @@
 package com.newsflow.core.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.newsflow.core.api.mapper.ArticleMapper;
+import com.newsflow.core.api.mapper.CategoryMapper;
 import com.newsflow.core.domain.ArticleEntity;
 import com.newsflow.core.domain.CategoryEntity;
 import com.newsflow.core.service.CoreCatalogService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -23,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({CategoryController.class, ArticleController.class})
+@AutoConfigureMockMvc(addFilters = false)
 @Import(GlobalExceptionHandler.class)
 class CoreControllersWebTest {
 
@@ -35,11 +39,21 @@ class CoreControllersWebTest {
     @MockBean
     private CoreCatalogService coreCatalogService;
 
+    @MockBean
+    private ArticleMapper articleMapper;
+
+    @MockBean
+    private CategoryMapper categoryMapper;
+
     @Test
     void shouldListCategories() throws Exception {
         CategoryEntity category = new CategoryEntity();
         category.setName("Tecnologia");
         when(coreCatalogService.listCategories()).thenReturn(List.of(category));
+        when(categoryMapper.toResponse(any(CategoryEntity.class))).thenAnswer(invocation -> {
+            CategoryEntity mapped = invocation.getArgument(0);
+            return new CategoryResponse(mapped.getId(), mapped.getName());
+        });
 
         mockMvc.perform(get("/api/core/categories"))
                 .andExpect(status().isOk())
@@ -51,6 +65,10 @@ class CoreControllersWebTest {
         CategoryEntity category = new CategoryEntity();
         category.setName("Noticias");
         when(coreCatalogService.createCategory(any(CreateCategoryRequest.class))).thenReturn(category);
+        when(categoryMapper.toResponse(any(CategoryEntity.class))).thenAnswer(invocation -> {
+            CategoryEntity mapped = invocation.getArgument(0);
+            return new CategoryResponse(mapped.getId(), mapped.getName());
+        });
 
         CreateCategoryRequest request = new CreateCategoryRequest("Noticias");
 
@@ -72,6 +90,17 @@ class CoreControllersWebTest {
         article.setCategory(category);
 
         when(coreCatalogService.listArticles()).thenReturn(List.of(article));
+        when(articleMapper.toResponse(any(ArticleEntity.class))).thenAnswer(invocation -> {
+            ArticleEntity mapped = invocation.getArgument(0);
+            return new ArticleResponse(
+                mapped.getId(),
+                mapped.getTitle(),
+                mapped.getContent(),
+                mapped.getCategory() != null ? mapped.getCategory().getId() : null,
+                mapped.getCategory() != null ? mapped.getCategory().getName() : null,
+                mapped.isHighlight()
+            );
+        });
 
         mockMvc.perform(get("/api/core/articles"))
                 .andExpect(status().isOk())
@@ -90,6 +119,17 @@ class CoreControllersWebTest {
         article.setCategory(category);
 
         when(coreCatalogService.createArticle(any(CreateArticleRequest.class))).thenReturn(article);
+        when(articleMapper.toResponse(any(ArticleEntity.class))).thenAnswer(invocation -> {
+            ArticleEntity mapped = invocation.getArgument(0);
+            return new ArticleResponse(
+                mapped.getId(),
+                mapped.getTitle(),
+                mapped.getContent(),
+                mapped.getCategory() != null ? mapped.getCategory().getId() : null,
+                mapped.getCategory() != null ? mapped.getCategory().getName() : null,
+                mapped.isHighlight()
+            );
+        });
 
         CreateArticleRequest request = new CreateArticleRequest("Materia", "Texto", UUID.randomUUID(), true);
 

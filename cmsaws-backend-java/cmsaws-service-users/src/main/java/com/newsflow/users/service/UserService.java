@@ -7,6 +7,8 @@ import com.newsflow.users.domain.RoleEntity;
 import com.newsflow.users.domain.UserEntity;
 import com.newsflow.users.repository.RoleRepository;
 import com.newsflow.users.repository.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "usersByEmail", allEntries = true)
     public UserEntity create(CreateUserRequest request) {
         RoleEntity role = roleRepository.findById(request.roleId())
                 .orElseThrow(() -> new InvalidReferenceException("Role not found"));
@@ -43,6 +46,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "usersByEmail", allEntries = true)
     public UserEntity update(UUID id, CreateUserRequest request) {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -58,6 +62,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "usersByEmail", allEntries = true)
     public void softDelete(UUID id) {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -71,6 +76,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "usersByEmail", key = "#email.toLowerCase()")
     public UserEntity authenticateByEmail(String email) {
         return userRepository.findByEmailIgnoreCaseAndStatusDado(email, 1)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
