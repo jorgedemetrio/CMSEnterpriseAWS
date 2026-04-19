@@ -1,42 +1,15 @@
-# TODO - Pendencias de Implementacao (Detalhado)
+# TODO - Pendencias de Implementacao
+
+Itens concluidos foram removidos. Mantidos apenas os que ainda demandam acao.
 
 ## Como interpretar
-- `Status`: `Pendente`, `Em andamento`, `Concluido`.
+- `Status`: `Pendente`, `Em andamento`.
 - `Prioridade`: `P0` (bloqueante), `P1` (alta), `P2` (media).
 - `Criterio de aceite`: condicao objetiva para encerrar a tarefa.
 
 ## 1. Plataforma e Infra
 
-### 1.1 Kafka local no ambiente de desenvolvimento
-- Status: Concluido
-- Prioridade: P0
-- Escopo:
-  - Adicionar `kafka` e `zookeeper` (ou stack KRaft) em `cmsaws-infra-aws/docker/docker-compose.yml`.
-  - Configurar portas e variaveis para servicos produtores/consumidores.
-  - Ajustar worker para bootstrap server do compose.
-- Progresso:
-  - `kafka` e `zookeeper` adicionados em `docker-compose.yml`.
-  - Stack local de dependencias atualizada em `docker-compose.local-deps.yml` com healthchecks.
-  - `KAFKA_BOOTSTRAP_SERVERS` configurado para forum/worker no compose.
-  - Service Forum publica eventos de criacao de topico/post em `forum.events`.
-  - Worker consome eventos Kafka e persiste em `forum_event_consumptions` via JPA/Flyway.
-- Criterio de aceite:
-  - `docker compose up -d` sobe Kafka sem erro.
-  - Producao e consumo de mensagem de teste funcionando.
-
-### 1.2 Ingress Kubernetes para front e APIs
-- Status: Concluido
-- Prioridade: P1
-- Escopo:
-  - Criar manifests `Ingress` para `frontend-user`, `frontend-admin` e APIs backend.
-  - Definir hostnames por ambiente (`dev.local`, etc.).
-- Progresso:
-  - Ingress criado para front em `cmsaws-infra-aws/k8s/ingress/frontend-ingress.yaml`.
-  - Ingress criado para APIs em `cmsaws-infra-aws/k8s/ingress/backend-ingress.yaml`.
-- Criterio de aceite:
-  - Rotas HTTP acessiveis via ingress controller sem port-forward manual.
-
-### 1.3 Observabilidade local (opcional, mas recomendada)
+### 1.1 Observabilidade local (opcional, mas recomendada)
 - Status: Pendente
 - Prioridade: P2
 - Escopo:
@@ -46,20 +19,7 @@
 
 ## 2. Back-end
 
-### 2.1 Integracao real com Kafka no forum/worker
-- Status: Concluido
-- Prioridade: P0
-- Escopo:
-  - Garantir producer no fluxo do forum e consumer no `cmsaws-worker-forum`.
-  - Cobrir contratos de evento e tratamento de erro/retry.
-- Progresso:
-  - Producer implementado no forum (`ForumEventPublisher`) para topicos e posts.
-  - Consumer implementado no worker (`ForumEventConsumer`) com idempotencia por `event_id`.
-  - Persistencia no worker adicionada com migration Flyway e repositório JPA.
-- Criterio de aceite:
-  - Evento criado no service-forum e consumido pelo worker com persistencia esperada.
-
-### 2.2 Endpoints de negocio completos
+### 2.1 Endpoints de negocio completos
 - Status: Em andamento
 - Prioridade: P1
 - Escopo:
@@ -68,54 +28,9 @@
 - Criterio de aceite:
   - Swagger/contratos e testes cobrindo caminhos felizes e erros principais.
 
-## 3. Front-end Usuario
+## 3. Testes e Qualidade
 
-### 3.1 Home real (cards + destaques)
-- Status: Concluido
-- Prioridade: P0
-- Escopo:
-  - Implementar listagem de materias.
-  - Implementar carrossel com `is_highlight = true`.
-  - Implementar estados de loading/erro/vazio.
-- Progresso:
-  - Home consumindo API real em `cmsaws-frontend-user/src/pages/HomePage.tsx`.
-  - Estados de loading/erro/vazio implementados.
-  - Secoes de categorias, destaques e listagem de materias implementadas.
-  - Destaques agora usam filtro real `isHighlight = true`.
-- Criterio de aceite:
-  - Home renderiza dados reais da API com fallback de erro amigavel.
-
-### 3.2 Fluxos de autenticacao e contato
-- Status: Concluido
-- Prioridade: P1
-- Escopo:
-  - Login/cadastro e armazenamento de sessao.
-  - Formulario de contato com departamentos reais.
-- Progresso:
-  - Backend com `POST /api/users/auth/login` e listagem de roles para cadastro.
-  - Frontend user com abas de autenticacao (login/cadastro) e contato integrado.
-  - Cadastro usa role `READER` automaticamente via API de roles.
-- Criterio de aceite:
-  - Fluxos funcionam ponta a ponta em ambiente local.
-
-## 4. Front-end Admin
-
-### 4.1 Painel administrativo funcional
-- Status: Concluido
-- Prioridade: P1
-- Escopo:
-  - CRUD de materias, categorias e usuarios.
-  - Controle de permissao por perfil.
-- Progresso:
-  - Frontend admin Angular substituiu scaffold por painel funcional com CRUD real.
-  - Integracao com APIs de usuarios, categorias e materias.
-  - Permissoes por perfil implementadas para `ADMIN`, `EDITOR` e `READER`.
-- Criterio de aceite:
-  - Operacoes CRUD completas com validacao de permissao.
-
-## 5. Testes e Qualidade
-
-### 5.1 E2E Playwright - Camada de usuarios
+### 3.1 E2E Playwright - Camada de usuarios
 - Status: Em andamento
 - Prioridade: P1
 - Escopo:
@@ -123,38 +38,3 @@
   - Expandir para fluxos reais (home com API, login, contato).
 - Criterio de aceite:
   - Execucao `npm run test:e2e` verde em CI e local.
-
-### 5.2 Pipeline de CI para E2E
-- Status: Concluido
-- Prioridade: P1
-- Escopo:
-  - Incluir job Playwright no workflow CI.
-  - Publicar relatorio HTML/artifacts.
-- Progresso:
-  - Job `frontend-user-e2e` adicionado em `.github/workflows/ci.yml`.
-  - Upload de artifacts do Playwright (report e test-results) habilitado.
-- Criterio de aceite:
-  - PR bloqueado em caso de falha E2E.
-
-## 6. Documentacao
-
-### 6.1 Atualizar roadmap raiz
-- Status: Concluido
-- Prioridade: P2
-- Escopo:
-  - Atualizar checkboxes do `README.md` para refletir o estado atual.
-- Progresso:
-  - `README.md` revisado com roadmap tecnico alinhado ao estado atual.
-- Criterio de aceite:
-  - Roadmap sem itens desatualizados.
-
-### 6.2 Guia de execucao local unico
-- Status: Concluido
-- Prioridade: P2
-- Escopo:
-  - Documentar passo a passo unico (infra + backend + front + testes).
-- Progresso:
-  - Guia unico consolidado em `docs/runbooks/operacao-inicial.md`.
-  - Referencias atualizadas em `README.md` e `docs/README.md`.
-- Criterio de aceite:
-  - Novo colaborador sobe ambiente completo sem ajuste manual nao documentado.
