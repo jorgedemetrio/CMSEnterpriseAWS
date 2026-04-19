@@ -2,6 +2,7 @@ package com.newsflow.worker.forum.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.newsflow.worker.forum.domain.ForumEventConsumptionEntity;
 import com.newsflow.worker.forum.repository.ForumEventConsumptionRepository;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,7 +16,8 @@ public class ForumEventConsumer {
     private final ForumEventConsumptionRepository consumptionRepository;
 
     public ForumEventConsumer(ObjectMapper objectMapper, ForumEventConsumptionRepository consumptionRepository) {
-        this.objectMapper = objectMapper;
+        // Ensure Instant/LocalDateTime payload fields from forum events are deserialized.
+        this.objectMapper = objectMapper.copy().registerModule(new JavaTimeModule());
         this.consumptionRepository = consumptionRepository;
     }
 
